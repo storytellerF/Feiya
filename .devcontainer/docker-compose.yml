@@ -1,7 +1,7 @@
 services:
   devcontainer:
     build: 
-      context: ../docker-dev-build
+      context: .
     command: /bin/sh -c "while sleep 1000; do :; done"
     ports: 
       - "8080-8090"

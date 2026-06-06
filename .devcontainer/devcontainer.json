@@ -3,7 +3,7 @@
 {
 	"name": "Fei-Dev",
 	// Or use a Dockerfile or Docker Compose file. More info: https://containers.dev/guide/dockerfile
-	"dockerComposeFile": "../docker-dev-build/docker-compose.yml",
+	"dockerComposeFile": "docker-compose.yml",
 	"service": "devcontainer",
 	"workspaceFolder": "/workspace",
 	"features": {
