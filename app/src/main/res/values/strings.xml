@@ -1,5 +1,7 @@
 <resources xmlns:tools="http://schemas.android.com/tools" tools:language="zh">
-    <string name="app_name">榧</string>
+    <string name="app_name">Feiya</string>
+    <string name="project_url" translatable="false">https://github.com/storytellerF/Feiya</string>
+    <string name="hid_app_name" translatable="false">Feiya HID</string>
     <string name="view">查看</string>
     <string name="save_to_local">保存到本地</string>
     <string name="delete">删除</string>

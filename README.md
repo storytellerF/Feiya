@@ -1,6 +1,6 @@
-# Fei
+# Feiya
 
-[![Android CI](https://github.com/storytellerF/Fei/actions/workflows/android.yml/badge.svg)](https://github.com/storytellerF/Fei/actions/workflows/android.yml)
+[![Android CI](https://github.com/storytellerF/Feiya/actions/workflows/android.yml/badge.svg)](https://github.com/storytellerF/Feiya/actions/workflows/android.yml)
 ## 榧
 
 使用：

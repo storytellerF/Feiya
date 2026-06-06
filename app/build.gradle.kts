@@ -22,11 +22,11 @@ val signKeyPassword: String? = getenv("storyteller_f_sign_key_password")
 val generatedJksFile = layout.buildDirectory.file("signing/signing_key.jks").get().asFile
 
 android {
-    namespace = "com.storyteller_f.fei"
+    namespace = "com.storyteller_f.feiya"
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "com.storyteller_f.fei"
+        applicationId = "com.storyteller_f.feiya"
         minSdk = 21
         targetSdk = 35
         versionCode = 8
@@ -60,7 +60,7 @@ android {
             resValue(
                 "string",
                 "leak_canary_display_activity_label",
-                "Fei"
+                "Feiya"
             )
         }
 

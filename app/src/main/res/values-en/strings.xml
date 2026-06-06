@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Fei</string>
+    <string name="app_name">Feiya</string>
+    <string name="project_url" translatable="false">https://github.com/storytellerF/Feiya</string>
+    <string name="hid_app_name" translatable="false">Feiya HID</string>
     <string name="view">View</string>
     <string name="save_to_local">Save to local</string>
     <string name="delete">Delete</string>

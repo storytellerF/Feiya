@@ -13,7 +13,7 @@ dependencyResolutionManagement {
         maven { url "https://jitpack.io" }
     }
 }
-rootProject.name = "Fei"
+rootProject.name = "Feiya"
 include ':app'
 
 debug(ext.baoFolder, "AndroidStudioProjects/Bao", new String[]{"startup", "bao-library"}, "bao")
