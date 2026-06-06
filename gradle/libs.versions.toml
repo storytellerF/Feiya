@@ -29,6 +29,7 @@ agp = "8.7.2"
 kotlin = "2.0.21"
 serialization = "2.0.21"
 adaptive-android = "1.0.0"
+jksify = "1.0.0-SNAPSHOT"
 
 [libraries]
 accompanist-permissions = { module = "com.google.accompanist:accompanist-permissions", version.ref = "accompanist-permissions" }
@@ -97,3 +98,4 @@ android = { id = "com.android.application", version.ref = "agp" }
 kotlin = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "serialization" }
 compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
+jksify = { id = "com.storyteller_f.jksify", version.ref = "jksify" }
