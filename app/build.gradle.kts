@@ -64,6 +64,19 @@ android {
             if (releaseSignConfig != null)
                 signingConfig = releaseSignConfig
         }
+
+        create("daily") {
+            applicationIdSuffix = ".daily"
+            isMinifyEnabled = true
+            isShrinkResources = true
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
+            val releaseSignConfig = signingConfigs.findByName("release")
+            if (releaseSignConfig != null)
+                signingConfig = releaseSignConfig
+        }
     }
     val javaVersion = JavaVersion.VERSION_21
     compileOptions {
@@ -94,6 +107,17 @@ android {
             reset()
             include("x86", "x86_64", "arm64-v8a", "armeabi-v7a")
             isUniversalApk = true
+        }
+    }
+}
+
+easylauncher {
+    buildTypes {
+        named("debug") {
+            enable(true)
+        }
+        named("daily") {
+            enable(true)
         }
     }
 }
