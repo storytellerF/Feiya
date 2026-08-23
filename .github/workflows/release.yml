@@ -34,9 +34,9 @@ jobs:
         run: ./gradlew assembleDaily
         env:
           storyteller_f_sign_path: app/build/signing/signing_key.jks
-          storyteller_f_sign_alias: ${{ secrets.STORYTELLER_F_SIGN_ALIAS }}
-          storyteller_f_sign_store_password: ${{ secrets.STORYTELLER_F_SIGN_STORE_PASSWORD }}
-          storyteller_f_sign_key_password: ${{ secrets.STORYTELLER_F_SIGN_KEY_PASSWORD }}
+          storyteller_f_sign_alias: ${{ secrets.ALIAS }}
+          storyteller_f_sign_store_password: ${{ secrets.STORE_PASSWORD }}
+          storyteller_f_sign_key_password: ${{ secrets.KEY_PASSWORD }}
 
       - uses: actions/upload-artifact@v4
         with:
@@ -67,9 +67,9 @@ jobs:
         run: ./gradlew assembleRelease
         env:
           storyteller_f_sign_path: app/build/signing/signing_key.jks
-          storyteller_f_sign_alias: ${{ secrets.STORYTELLER_F_SIGN_ALIAS }}
-          storyteller_f_sign_store_password: ${{ secrets.STORYTELLER_F_SIGN_STORE_PASSWORD }}
-          storyteller_f_sign_key_password: ${{ secrets.STORYTELLER_F_SIGN_KEY_PASSWORD }}
+          storyteller_f_sign_alias: ${{ secrets.ALIAS }}
+          storyteller_f_sign_store_password: ${{ secrets.STORE_PASSWORD }}
+          storyteller_f_sign_key_password: ${{ secrets.KEY_PASSWORD }}
 
       - name: Create Release
         uses: softprops/action-gh-release@v2
