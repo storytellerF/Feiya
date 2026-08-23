@@ -2,21 +2,9 @@
 
 [![Test](https://github.com/storytellerF/Feiya/actions/workflows/test.yml/badge.svg)](https://github.com/storytellerF/Feiya/actions/workflows/test.yml)
 [![Build](https://github.com/storytellerF/Feiya/actions/workflows/release.yml/badge.svg)](https://github.com/storytellerF/Feiya/actions/workflows/release.yml)
-## 榧
 
-使用：
+## Overview
 
-选择➕可以选择要分享的文件。然后点击端口号会弹出来一个二维码，扫描二维码就能在浏览器中访问。
+Tap the ➕ button to select files to share. Then tap the port number to display a QR code — scan it to access the files from any browser.
 
-基于webSocket 的即时通讯： your ip:your port/messages 
-
-todo: 
-
-1. - [x] 即时聊天
-2. - [ ] 上传文件
-3. - [x] 手机模拟键盘，自动输入地址
-4. - [x] 密码认证
-5. - [x] mmap
-6. - [ ] WebRTC
-7. - [x] 即时聊天支持Markdown
-8. - [x] 即时聊天随机头像
+Instant messaging via WebSocket: `your-ip:your-port/messages`
