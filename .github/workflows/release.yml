@@ -1,4 +1,4 @@
-name: Build
+name: Release
 
 permissions:
   contents: write
@@ -11,7 +11,7 @@ on:
 
 jobs:
   daily:
-    if: !startsWith(github.ref, 'refs/tags/')
+    if: "!startsWith(github.ref, 'refs/tags/')"
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -21,7 +21,9 @@ jobs:
         with:
           java-version: '21'
           distribution: 'temurin'
-          cache: gradle
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
 
       - name: Decode signing key
         run: |
@@ -32,9 +34,9 @@ jobs:
         run: ./gradlew assembleDaily
         env:
           storyteller_f_sign_path: app/build/signing/signing_key.jks
-          storyteller_f_sign_alias: ${{ secrets.ALIAS }}
-          storyteller_f_sign_store_password: ${{ secrets.STORE_PASSWORD }}
-          storyteller_f_sign_key_password: ${{ secrets.KEY_PASSWORD }}
+          storyteller_f_sign_alias: ${{ secrets.STORYTELLER_F_SIGN_ALIAS }}
+          storyteller_f_sign_store_password: ${{ secrets.STORYTELLER_F_SIGN_STORE_PASSWORD }}
+          storyteller_f_sign_key_password: ${{ secrets.STORYTELLER_F_SIGN_KEY_PASSWORD }}
 
       - uses: actions/upload-artifact@v4
         with:
@@ -52,7 +54,9 @@ jobs:
         with:
           java-version: '21'
           distribution: 'temurin'
-          cache: gradle
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
 
       - name: Decode signing key
         run: |
@@ -63,9 +67,9 @@ jobs:
         run: ./gradlew assembleRelease
         env:
           storyteller_f_sign_path: app/build/signing/signing_key.jks
-          storyteller_f_sign_alias: ${{ secrets.ALIAS }}
-          storyteller_f_sign_store_password: ${{ secrets.STORE_PASSWORD }}
-          storyteller_f_sign_key_password: ${{ secrets.KEY_PASSWORD }}
+          storyteller_f_sign_alias: ${{ secrets.STORYTELLER_F_SIGN_ALIAS }}
+          storyteller_f_sign_store_password: ${{ secrets.STORYTELLER_F_SIGN_STORE_PASSWORD }}
+          storyteller_f_sign_key_password: ${{ secrets.STORYTELLER_F_SIGN_KEY_PASSWORD }}
 
       - name: Create Release
         uses: softprops/action-gh-release@v2
