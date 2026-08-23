@@ -1,4 +1,3 @@
-import com.storyteller_f.jksify.getenv
 import com.google.gson.stream.JsonWriter
 import java.io.File
 import java.io.FileWriter
@@ -9,14 +8,12 @@ plugins {
     id("org.jetbrains.kotlin.plugin.serialization")
     id("com.starter.easylauncher") version "6.3.0"
     alias(libs.plugins.compose.compiler)
-    alias(libs.plugins.jksify)
 }
 
-val signPath: String? = getenv("storyteller_f_sign_path")
-val signKey: String? = getenv("storyteller_f_sign_key")
-val signAlias: String? = getenv("storyteller_f_sign_alias")
-val signStorePassword: String? = getenv("storyteller_f_sign_store_password")
-val signKeyPassword: String? = getenv("storyteller_f_sign_key_password")
+val signPath: String? = System.getenv("storyteller_f_sign_path")
+val signAlias: String? = System.getenv("storyteller_f_sign_alias")
+val signStorePassword: String? = System.getenv("storyteller_f_sign_store_password")
+val signKeyPassword: String? = System.getenv("storyteller_f_sign_key_password")
 
 android {
     namespace = "com.storyteller_f.feiya"
@@ -36,16 +33,11 @@ android {
     }
 
     signingConfigs {
-        val signStorePath = when {
-            signPath != null -> File(signPath)
-            signKey != null -> layout.buildDirectory.file("signing/signing_key.jks").get().asFile
-            else -> null
-        }
-        if (signStorePath != null && signAlias != null && signStorePassword != null && signKeyPassword != null) {
+        if (signPath != null && signAlias != null && signStorePassword != null && signKeyPassword != null) {
             create("release") {
                 keyAlias = signAlias
                 keyPassword = signKeyPassword
-                storeFile = signStorePath
+                storeFile = File(signPath)
                 storePassword = signStorePassword
             }
         }
@@ -62,6 +54,19 @@ android {
         }
 
         release {
+            isMinifyEnabled = true
+            isShrinkResources = true
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
+            val releaseSignConfig = signingConfigs.findByName("release")
+            if (releaseSignConfig != null)
+                signingConfig = releaseSignConfig
+        }
+
+        create("daily") {
+            applicationIdSuffix = ".daily"
             isMinifyEnabled = true
             isShrinkResources = true
             proguardFiles(
@@ -102,6 +107,17 @@ android {
             reset()
             include("x86", "x86_64", "arm64-v8a", "armeabi-v7a")
             isUniversalApk = true
+        }
+    }
+}
+
+easylauncher {
+    buildTypes {
+        named("debug") {
+            enable(true)
+        }
+        named("daily") {
+            enable(true)
         }
     }
 }
