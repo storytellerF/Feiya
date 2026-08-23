@@ -24,10 +24,15 @@ jobs:
           distribution: 'temurin'
           cache: gradle
 
+      - name: Decode signing key
+        run: |
+          mkdir -p app/build/signing
+          echo "${{ secrets.SIGNING_KEY }}" | base64 -d > app/build/signing/signing_key.jks
+
       - name: Build with Gradle
         run: ./gradlew build
         env:
-          storyteller_f_sign_key: ${{ secrets.SIGNING_KEY }}
+          storyteller_f_sign_path: app/build/signing/signing_key.jks
           storyteller_f_sign_alias: ${{ secrets.ALIAS }}
           storyteller_f_sign_store_password: ${{ secrets.STORE_PASSWORD }}
           storyteller_f_sign_key_password: ${{ secrets.KEY_PASSWORD }}
