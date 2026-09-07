@@ -13,16 +13,16 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Set up JDK 21
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@dd06d9cba3e5552c54d9f8ea23572deb30010f7c # v6.0.0
         with:
           java-version: '21'
           distribution: 'temurin'
 
       - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v4
+        uses: gradle/actions/setup-gradle@9c971963bec38e04b3d30dcc455b5382be2fdbfb # v6.3.0
 
       - name: Decode signing key
         run: |
@@ -30,7 +30,7 @@ jobs:
           echo "${{ secrets.SIGNING_KEY }}" | base64 -d > app/build/signing/signing_key.jks
 
       - name: Build APK
-        run: ./gradlew ${{ startsWith(github.ref, 'refs/tags/') && 'assembleRelease' || 'assembleDaily' }}
+        run: ./gradlew ${{ startsWith(github.ref, 'refs/tags/') && 'assembleRelease' || 'assembleAlpha' }}
         env:
           storyteller_f_sign_path: app/build/signing/signing_key.jks
           storyteller_f_sign_alias: ${{ secrets.ALIAS }}
@@ -39,14 +39,14 @@ jobs:
 
       - name: Upload artifact
         if: "!startsWith(github.ref, 'refs/tags/')"
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
-          name: Daily APK
-          path: app/build/outputs/apk/daily/*.apk
+          name: Alpha APK
+          path: app/build/outputs/apk/alpha/*.apk
 
       - name: Create Release
         if: startsWith(github.ref, 'refs/tags/')
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@3bb12739c298aeb8a4eeaf626c5b8d85266b0e65 # v2.6.2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
