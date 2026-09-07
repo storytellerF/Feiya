@@ -26,7 +26,7 @@ ui = "1.7.5"
 webkit = "1.12.1"
 rules = "1.6.1"
 agp = "9.4.0"
-kotlin = "2.3.21"
+kotlin = "2.4.10"
 serialization = "2.3.21"
 adaptive-android = "1.0.0"
 
