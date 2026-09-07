@@ -25,9 +25,9 @@ navigation-compose = "2.8.3"
 ui = "1.7.5"
 webkit = "1.12.1"
 rules = "1.6.1"
-agp = "8.7.2"
-kotlin = "2.0.21"
-serialization = "2.0.21"
+agp = "9.4.0"
+kotlin = "2.3.21"
+serialization = "2.3.21"
 adaptive-android = "1.0.0"
 
 [libraries]

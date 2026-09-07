@@ -1,10 +1,10 @@
 import com.google.gson.stream.JsonWriter
 import java.io.File
 import java.io.FileWriter
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
     id("com.android.application")
-    id("org.jetbrains.kotlin.android")
     id("org.jetbrains.kotlin.plugin.serialization")
     id("com.starter.easylauncher") version "6.3.0"
     alias(libs.plugins.compose.compiler)
@@ -14,6 +14,7 @@ val signPath: String? = System.getenv("storyteller_f_sign_path")
 val signAlias: String? = System.getenv("storyteller_f_sign_alias")
 val signStorePassword: String? = System.getenv("storyteller_f_sign_store_password")
 val signKeyPassword: String? = System.getenv("storyteller_f_sign_key_password")
+val javaVersion = JavaVersion.VERSION_21
 
 android {
     namespace = "com.storyteller_f.feiya"
@@ -65,8 +66,8 @@ android {
                 signingConfig = releaseSignConfig
         }
 
-        create("daily") {
-            applicationIdSuffix = ".daily"
+        create("alpha") {
+            applicationIdSuffix = ".alpha"
             isMinifyEnabled = true
             isShrinkResources = true
             proguardFiles(
@@ -78,16 +79,13 @@ android {
                 signingConfig = releaseSignConfig
         }
     }
-    val javaVersion = JavaVersion.VERSION_21
     compileOptions {
         sourceCompatibility = javaVersion
         targetCompatibility = javaVersion
     }
-    kotlinOptions {
-        jvmTarget = javaVersion.toString()
-    }
     buildFeatures {
         compose = true
+        resValues = true
     }
 
     packaging {
@@ -111,14 +109,9 @@ android {
     }
 }
 
-easylauncher {
-    buildTypes {
-        named("debug") {
-            enable(true)
-        }
-        named("daily") {
-            enable(true)
-        }
+kotlin {
+    compilerOptions {
+        jvmTarget = JvmTarget.fromTarget(javaVersion.toString())
     }
 }
 
