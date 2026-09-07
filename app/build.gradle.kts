@@ -111,17 +111,6 @@ android {
     }
 }
 
-easylauncher {
-    buildTypes {
-        named("debug") {
-            enable(true)
-        }
-        named("daily") {
-            enable(true)
-        }
-    }
-}
-
 dependencies {
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
