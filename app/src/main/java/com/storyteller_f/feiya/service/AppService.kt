@@ -125,7 +125,7 @@ class AppService : LifecycleService() {
     private fun postForegroundNotify(message: String) {
         // Foreground promotion is required even when notification permission is denied.
         val notification = NotificationCompat.Builder(this, FOREGROUND_CHANNEL_ID)
-            .setSmallIcon(R.mipmap.ic_launcher)
+            .setSmallIcon(R.drawable.ic_notification)
             .setContentTitle(getString(R.string.app_name))
             .setContentText(message)
             .setOngoing(true)
@@ -139,7 +139,7 @@ class AppService : LifecycleService() {
         if (managerCompat.areNotificationsEnabled()) {
             val notification =
                 NotificationCompat.Builder(this, DEFAULT_CHANNEL_ID)
-                    .setSmallIcon(R.mipmap.ic_launcher)
+                    .setSmallIcon(R.drawable.ic_notification)
                     .setContentTitle(getString(R.string.app_name))
                     .setContentText(message)
                     .build()

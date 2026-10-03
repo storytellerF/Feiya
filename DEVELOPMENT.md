@@ -317,3 +317,24 @@ and commit the regenerated native drawables and license.
 Run `./gradlew :app:testDebugUnitTest --tests '*AdaptiveFilesTest'` for adaptive selection,
 saved-state, and rendering checks. Rendering captures are written under
 `app/build/outputs/design/`; these use Robolectric native graphics, not a device.
+
+## Brand icons
+
+The Feiya mark combines an F with two swept wings, using plum, off-white, and lime.
+`res/drawable/ic_launcher_foreground.xml` is the color vector source; keep its shape
+within the adaptive safe circle. `ic_launcher_monochrome.xml` supplies themed icons,
+and `ic_notification.xml` uses an opaque white silhouette on transparency at 24 dp.
+Both foreground-service notification builders must use the notification drawable.
+The splash screen shares the adaptive foreground and background color.
+
+After editing the vectors or `values/ic_launcher_background.xml`, regenerate legacy
+launcher density PNGs and the in-app logo:
+
+```sh
+python3 -m venv /tmp/feiya-icons-venv
+/tmp/feiya-icons-venv/bin/pip install CairoSVG==2.9.1
+/tmp/feiya-icons-venv/bin/python scripts/update-brand-icons.py
+./gradlew :app:processDebugResources
+```
+
+CairoSVG requires the native Cairo library.
