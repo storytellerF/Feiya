@@ -1,6 +1,10 @@
 package com.storyteller_f.feiya.ui.theme
 
 import android.os.Build
+import androidx.activity.SystemBarStyle
+import androidx.activity.compose.LocalActivity
+import androidx.activity.ComponentActivity
+import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
@@ -12,7 +16,6 @@ import androidx.compose.runtime.SideEffect
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
-import com.google.accompanist.systemuicontroller.rememberSystemUiController
 
 private val LightColors = lightColorScheme(
     surfaceContainer = Color(0xFFEDF2E8),
@@ -99,10 +102,13 @@ fun AppTheme(
         else -> LightColors
     }
     val view = LocalView.current
-    val controller = rememberSystemUiController()
+    val activity = LocalActivity.current as? ComponentActivity
     if (!view.isInEditMode) {
         SideEffect {
-            controller.setSystemBarsColor(Color.White.copy(alpha = 0.004f), darkIcons = !darkTheme)
+            activity?.enableEdgeToEdge(
+                statusBarStyle = SystemBarStyle.auto(android.graphics.Color.TRANSPARENT, android.graphics.Color.TRANSPARENT) { darkTheme },
+                navigationBarStyle = SystemBarStyle.auto(android.graphics.Color.TRANSPARENT, android.graphics.Color.TRANSPARENT) { darkTheme },
+            )
         }
     }
 

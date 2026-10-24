@@ -37,7 +37,6 @@ adaptive-android = "1.0.0"
 ktor-server-test-host = { module = "io.ktor:ktor-server-test-host", version.ref = "ktor-server" }
 robolectric = { module = "org.robolectric:robolectric", version.ref = "robolectric" }
 accompanist-permissions = { module = "com.google.accompanist:accompanist-permissions", version.ref = "accompanist-permissions" }
-accompanist-systemuicontroller = { module = "com.google.accompanist:accompanist-systemuicontroller", version.ref = "accompanist-permissions" }
 androidx-activity-compose = { module = "androidx.activity:activity-compose", version.ref = "activity-compose" }
 androidx-browser = { module = "androidx.browser:browser", version.ref = "browser" }
 androidx-core-ktx = { module = "androidx.core:core-ktx", version.ref = "androidx-core-ktx" }

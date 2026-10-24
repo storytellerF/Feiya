@@ -1,5 +1,6 @@
 package com.storyteller_f.feiya.ui.components
 
+import android.content.ClipData
 import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -29,13 +30,14 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalClipboardManager
+import androidx.compose.ui.platform.ClipEntry
+import androidx.compose.ui.platform.LocalClipboard
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
@@ -46,6 +48,7 @@ import com.storyteller_f.feiya.R
 import com.storyteller_f.feiya.service.Message
 import com.storyteller_f.feiya.service.getAvatarIcon
 import dev.jeziellago.compose.markdowntext.MarkdownText
+import kotlinx.coroutines.launch
 
 class MessagesProvider : PreviewParameterProvider<Message> {
     override val values: Sequence<Message>
@@ -59,7 +62,8 @@ const val MAX_LINE = 4
 @Composable
 fun MessageItem(@PreviewParameter(MessagesProvider::class) item: Message) {
     var expanded by remember { mutableStateOf(false) }
-    val clipboardManager = LocalClipboardManager.current
+    val clipboard = LocalClipboard.current
+    val scope = rememberCoroutineScope()
     val context = LocalContext.current
     var maxLines by remember {
         mutableIntStateOf(MAX_LINE)
@@ -99,9 +103,10 @@ fun MessageItem(@PreviewParameter(MessagesProvider::class) item: Message) {
             DropdownMenuItem(
                 text = { Text(text = stringResource(id = android.R.string.copy)) },
                 onClick = {
-                    clipboardManager.setText(AnnotatedString(item.data))
-                    Toast.makeText(context, context.getString(R.string.copied), Toast.LENGTH_SHORT)
-                        .show()
+                    scope.launch {
+                        clipboard.setClipEntry(ClipEntry(ClipData.newPlainText("", item.data)))
+                        Toast.makeText(context, R.string.copied, Toast.LENGTH_SHORT).show()
+                    }
                     expanded = false
                 })
         }

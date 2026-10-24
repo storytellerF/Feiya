@@ -39,10 +39,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
-import androidx.core.view.WindowCompat
+import androidx.activity.enableEdgeToEdge
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.preferencesDataStore
@@ -176,7 +177,7 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         installSplashScreen()
         super.onCreate(savedInstanceState)
-        WindowCompat.setDecorFitsSystemWindows(window, false)
+        enableEdgeToEdge()
         bluetoothController.start()
         setContent {
             val state by bluetoothController.state()
@@ -205,13 +206,14 @@ class MainActivity : ComponentActivity() {
                 }
             }
             val sendText: (String) -> Unit = keyboardHost::sendText
+            val projectUrl = stringResource(R.string.project_url)
             val showAboutWebView = {
                 val builder = CustomTabsIntent.Builder()
                     .setInitialActivityHeightPx((screenHeight * 0.7).toInt())
                 val session = newSession
                 if (session != null) builder.setSession(session)
                 val customTabsIntent = builder.build()
-                customTabsIntent.launchUrl(context, Uri.parse(context.getString(R.string.project_url)))
+                customTabsIntent.launchUrl(context, Uri.parse(projectUrl))
             }
 
             AppTheme {

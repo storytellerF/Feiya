@@ -10,8 +10,19 @@ directory (or configure `sdk.dir` in your local `local.properties`). Install Nod
 ./gradlew :app:lintDebug
 ```
 
-Lint dependency resolution succeeds, but the current source has two existing
-`LocalContextGetResourceValueCall` errors in `MainActivity.kt` and `Messages.kt`.
+To locate Gradle deprecations, run a build with `--warning-mode all` and
+`-Dorg.gradle.deprecation.trace=true` (quote the latter argument in PowerShell).
+The project's deprecated Groovy repository URL assignment has been migrated.
+AGP 9.4.1 still calls `Configuration.setVisible` from
+`BasePlugin.createAndroidJdkImageConfiguration`; Gradle schedules removal for 11.
+This is a plugin-owned warning, not a project script call. Recheck it when upgrading
+AGP; keep warnings enabled rather than suppressing the diagnostic.
+
+System bars use AndroidX `enableEdgeToEdge`, with icon appearance following
+`AppTheme` and platform contrast protection for button navigation. Clipboard writes
+use `LocalClipboard.setClipEntry` in composition-owned coroutine scopes. The JVM
+Compose tests cover message/QR link copy content and system bar icon changes; also check
+QR link copying and gesture/button navigation visually on a device before release.
 
 ## Dependency alignment
 

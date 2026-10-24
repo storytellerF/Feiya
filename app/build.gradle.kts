@@ -207,7 +207,6 @@ dependencies {
     debugImplementation(libs.androidx.customview)
     debugImplementation(libs.androidx.customview.poolingcontainer)
 
-    implementation(libs.accompanist.systemuicontroller)
     implementation(libs.accompanist.permissions)
 
     implementation(libs.androidx.navigation.compose)
