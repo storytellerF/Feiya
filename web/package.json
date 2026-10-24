@@ -19,6 +19,6 @@
   },
   "dependencies": {
     "@phosphor-icons/core": "2.1.1",
-    "markdown-it": "15.0.2"
+    "markdown-it": "15.0.3"
   }
 }
