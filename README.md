@@ -71,6 +71,16 @@ switching computers, or reconnecting to the same computer stops old tasks. Check
 the destination and any text already entered before sending again. Connection or
 permission failures also stop the current message.
 
+Opening Feiya from its running-service notification returns to the existing page
+and keeps its draft. When you return to the app, it restores Bluetooth keyboard
+registration if needed. Wait for preparation to finish, then select your computer
+if disconnected. Registration failures show a **Retry** button; old send tasks are
+never replayed after reconnection. Preparation and connection attempts time out with a recoverable error.
+You can also cancel a pending connection from its dialog.
+If Bluetooth has not confirmed that the previous session was released, turn
+Bluetooth off and on before retrying; Feiya will not register another session while
+cleanup is unconfirmed.
+
 ## macOS keyboard setup
 
 When macOS asks you to identify the keyboard, use the **macOS Keyboard Setup

@@ -1,6 +1,7 @@
 package com.storyteller_f.feiya
 
 import android.app.Application
+import android.util.Log
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
@@ -17,4 +18,9 @@ class FeiyaApplication : Application() {
 
     val serverCoordination = Dispatchers.Default.limitedParallelism(1)
     val keyboardCoordination = Dispatchers.Default.limitedParallelism(1)
+    val hidConnectionHost by lazy {
+        HidConnectionHost(keyboardCoordination, Dispatchers.IO, AndroidHidPlatform(this)) { message, error ->
+            Log.w("HidConnectionHost", message, error)
+        }
+    }
 }

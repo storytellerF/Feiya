@@ -67,7 +67,6 @@ import com.storyteller_f.feiya.service.Message
 import com.storyteller_f.feiya.service.ServerState
 import com.storyteller_f.feiya.service.SharedFileInfo
 import com.storyteller_f.feiya.service.portFlow
-import com.storyteller_f.feiya.ui.components.ComposeBluetoothDevice
 import com.storyteller_f.feiya.ui.components.MainToolbar
 import com.storyteller_f.feiya.ui.components.HidScreen
 import com.storyteller_f.feiya.ui.components.SharedFiles
@@ -89,17 +88,6 @@ import kotlin.concurrent.thread
 
 val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "settings")
 
-sealed class HidState {
-    data object NotSupport : HidState()
-    data object BluetoothOff : HidState()
-    data object NoPermission : HidState()
-    class NoBond(val bondDevices: List<ComposeBluetoothDevice>, val connecting: String? = null) :
-        HidState()
-
-    class Done(val device: ComposeBluetoothDevice) : HidState()
-}
-
-
 class MainActivity : ComponentActivity() {
     private val serviceBinder = MutableStateFlow<AppService.ServiceBinder?>(null)
     private val currentServiceBinder get() = serviceBinder.value
@@ -109,16 +97,13 @@ class MainActivity : ComponentActivity() {
         }
 
     private val request =
-        registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
-            if (isGranted) bluetoothController.permissionChanged()
+        registerForActivityResult(ActivityResultContracts.RequestPermission()) {
+            bluetoothController.retry()
         }
     private val bluetoothController by lazy {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-            BluetoothHidControllerImpl(this)
-        } else {
-            NoOpBluetoothHidController()
-        }
+        (application as FeiyaApplication).hidConnectionHost
     }
+    private val hidClient = Any()
 
     private val bootSettingsHost by lazy {
         BootSettingsHost(
@@ -178,9 +163,8 @@ class MainActivity : ComponentActivity() {
         installSplashScreen()
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        bluetoothController.start()
         setContent {
-            val state by bluetoothController.state()
+            val state by bluetoothController.state.collectAsStateWithLifecycle()
             val port by LocalContext.current.portFlow.collectAsStateWithLifecycle(initialValue = AppService.DEFAULT_PORT)
             val navController = rememberNavController()
             val density = LocalDensity.current
@@ -391,6 +375,8 @@ class MainActivity : ComponentActivity() {
                 bluetoothState = state,
                 requestPermission = requestPermission,
                 connectDevice = bluetoothController::connectDevice,
+                retryConnection = bluetoothController::retry,
+                cancelConnection = bluetoothController::cancelConnectionAttempt,
                 sendText = sendText,
                 keyboardState = keyboardState,
                 cancelTask = keyboardHost::cancelTask,
@@ -408,6 +394,7 @@ class MainActivity : ComponentActivity() {
     }
 
     override fun onDestroy() {
+        bluetoothController.background(hidClient)
         keyboardHost.close()
         bootSettingsHost.close()
         super.onDestroy()
@@ -435,6 +422,7 @@ class MainActivity : ComponentActivity() {
 
     override fun onResume() {
         super.onResume()
+        bluetoothController.foreground(hidClient)
         lifecycleScope.launch {
             cacheInvalid()//when resume
         }
@@ -442,6 +430,11 @@ class MainActivity : ComponentActivity() {
 
     fun bindServiceBinder(binder: AppService.ServiceBinder) {
         serviceBinder.value = binder
+    }
+
+    override fun onPause() {
+        bluetoothController.background(hidClient)
+        super.onPause()
     }
 
     fun unbindServiceBinder() {

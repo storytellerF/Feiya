@@ -1,5 +1,11 @@
 <resources xmlns:tools="http://schemas.android.com/tools" tools:language="zh">
     <string name="app_name">Feiya</string>
+    <string name="hid_preparing">正在准备蓝牙键盘…</string>
+    <string name="hid_retry">重试</string>
+    <string name="hid_profile_failed">无法启动蓝牙键盘服务，请重试。</string>
+    <string name="hid_registration_failed">蓝牙键盘注册失败，请关闭其他蓝牙键盘应用后重试。</string>
+    <string name="hid_connect_failed">连接失败，请确认电脑蓝牙已开启，然后再次选择设备。</string>
+    <string name="hid_disconnect_failed">断开连接失败，请重试。</string>
     <string name="project_url" translatable="false">https://github.com/storytellerF/Feiya</string>
     <string name="hid_app_name" translatable="false">Feiya HID</string>
     <string name="view">查看</string>
@@ -98,4 +104,5 @@
     <string name="access_password_hint">浏览器访问共享内容时使用。留空表示无需密码。</string>
     <string name="listen_port_hint">服务监听端口：%1$s</string>
     <string name="files_title">文件</string>
+    <string name="hidCleanupFailed">蓝牙尚未确认释放旧会话，请关闭再开启蓝牙后重试。</string>
 </resources>

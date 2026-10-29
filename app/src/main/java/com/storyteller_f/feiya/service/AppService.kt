@@ -151,7 +151,10 @@ class AppService : LifecycleService() {
     private fun openMainActivity() = PendingIntentCompat.getActivity(
         this,
         0,
-        Intent(this, MainActivity::class.java),
+        Intent(this, MainActivity::class.java).apply {
+            // Reuse the page and its draft instead of creating another HID client (issue #40).
+            flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
+        },
         0,
         false
     )

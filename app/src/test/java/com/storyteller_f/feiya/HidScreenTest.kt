@@ -6,7 +6,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.test.*
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.test.junit4.createComposeRule
-import com.storyteller_f.feiya.ui.components.ComposeBluetoothDevice
 import com.storyteller_f.feiya.ui.components.HidScreen
 import org.junit.Assert.assertEquals
 import org.junit.Rule
@@ -21,7 +20,7 @@ class HidScreenTest {
     @get:Rule val compose = createComposeRule()
 
     @Test fun editsStayImmediateAcrossTaskUpdatesAndReconnect() {
-        val connection = mutableStateOf<HidState>(HidState.Done(ComposeBluetoothDevice("computer", "address")))
+        val connection = mutableStateOf<HidState>(HidState.Done(HidDevice("computer", "address")))
         val keyboard = mutableStateOf(HidKeyboardState())
         val sent = mutableListOf<String>()
         compose.setContent {
@@ -39,7 +38,7 @@ class HidScreenTest {
         compose.onNodeWithTag("hid_send").performScrollTo().performClick()
         compose.runOnIdle { assertEquals(listOf("first! second"), sent); connection.value = HidState.BluetoothOff }
         compose.onNodeWithTag("hid_tasks").assertExists()
-        compose.runOnIdle { connection.value = HidState.Done(ComposeBluetoothDevice("other", "address2")) }
+        compose.runOnIdle { connection.value = HidState.Done(HidDevice("other", "address2")) }
         compose.onNodeWithTag("hid_text").performScrollTo().assertTextContains("first! second")
     }
 
@@ -53,4 +52,36 @@ class HidScreenTest {
         compose.onNodeWithTag("hid_cancel_42").performClick()
         compose.runOnIdle { assertEquals(listOf(42L), cancelled) }
     }
+
+    @Test fun registrationFailureShowsRetryAndPreservesDraft() {
+        val connection = mutableStateOf<HidState>(HidState.Done(HidDevice("computer", "address")))
+        var retries = 0
+        compose.setContent {
+            MaterialTheme { HidScreen(connection.value, retryConnection = { retries++ }) }
+        }
+        compose.onNodeWithTag("hid_text").performScrollTo().performTextInput("Keep this draft")
+        compose.runOnIdle { connection.value = HidState.Failed(HidFailure.REGISTRATION) }
+        compose.onNodeWithText("Could not register the Bluetooth keyboard. Close other Bluetooth keyboard apps and try again.").assertExists()
+        compose.onNodeWithText("Retry").performClick()
+        compose.runOnIdle {
+            assertEquals(1, retries)
+            connection.value = HidState.Done(HidDevice("computer", "address"))
+        }
+        compose.onNodeWithTag("hid_text").performScrollTo().assertTextContains("Keep this draft")
+    }
+    @Test fun connectingDialogOffersCancellation() {
+        val device = HidDevice("Computer", "00:11:22:33:44:55")
+        var cancellations = 0
+        val state = mutableStateOf<HidState>(HidState.NoBond(listOf(device), connecting = device.address))
+        compose.setContent {
+            MaterialTheme { HidScreen(state.value, cancelConnection = {
+                cancellations++
+                state.value = HidState.Preparing
+            }) }
+        }
+        compose.onNodeWithText("Cancel").performClick()
+        compose.runOnIdle { assertEquals(1, cancellations) }
+        compose.onNodeWithText("connecting to ${device.address}").assertDoesNotExist()
+    }
+
 }

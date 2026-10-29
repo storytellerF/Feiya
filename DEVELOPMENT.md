@@ -67,12 +67,13 @@ There are no string interceptors. `sendText` on the Host is the convenience entr
 point for both the HID screen and shared URLs.
 
 All output, including calibration and modifier combinations, calls
-a bound `HidKeyboardSession`. The controller publishes connection handles and
-invalidates them on disconnect, service loss, unregistration, Bluetooth shutdown,
-permission loss, and activity destruction. `RawHidKeyboard` serializes press/release pairs
+a bound `HidKeyboardSession`. The connection Host publishes connection handles;
+`HidProfileHandle` owns their validity and invalidates them directly at the callback boundary on disconnect, service loss, unregistration, Bluetooth shutdown,
+permission loss, and explicit Host shutdown. Activity destruction cancels that
+activity's send queue. `RawHidKeyboard` serializes press/release pairs
 and attempts a release even on failure or cancellation. Bluetooth calls run on the
-IO dispatcher; each session captures one Bluetooth device and profile on the main
-thread. Validity is checked again after acquiring the keyboard mutex; key release
+IO dispatcher; each session captures one Bluetooth device and profile before it is
+published. Validity is checked again after acquiring the keyboard mutex; key release
 always uses the original target. Keyboard report ID 2
 has exactly two bytes: modifier mask and one key usage, as defined in
 `app/src/main/assets/hid`. Do not replace this with an eight-byte boot keyboard report.
@@ -85,6 +86,48 @@ Mapping references: [USB HID Usage Tables](https://www.usb.org/hid) and the
 The JVM tests cover ASCII/layout translation, unsupported input, queued-message
 ordering, failure recovery, layout-independent calibration, report bytes, and
 cancellation cleanup, session replacement, queue cancellation, and task progress.
+`HidConnectionHost` is application-owned and independent of Android/Compose. It
+serializes lifecycle actions and callback projections on the injected coordination
+dispatcher; callback invalidation does not wait for that queue; `AndroidHidPlatform` uses application context and runs platform calls
+and descriptor reads on IO. All activity instances share one registration. Opaque
+foreground-client tokens allow recovery while at least one activity is resumed;
+pausing or destroying an activity does not unregister another client's HID session.
+The profile and Bluetooth receiver live with the application after first use;
+Bluetooth shutdown, permission loss, and profile loss release the affected profile.
+The OS releases application resources at process death; `close()` also supports
+explicit teardown in tests. The keyboard send queue remains activity-owned.
+
+Registration request acceptance is distinct from `onAppStatusChanged(true)`.
+Resume, permission grant, Bluetooth recovery, and explicit retry reconcile the
+registration. A failed attempt is shown to the user without an automatic retry loop.
+Each profile handle owns one registration attempt and explicit connection generations.
+Acquisition, registration confirmation, and release confirmation each have a ten-second
+deadline. `HidProfileAcquisition` closes unclaimed late proxies after cancellation.
+Registration timeout revokes sending and requests release; a successful unregister
+return is only acceptance, not confirmation. Until the false registration callback
+or service/radio loss confirms release, the Host retains ownership and blocks new
+registration, including explicit retries. A cleanup timeout explains how to restart
+Bluetooth. Late successful registration cannot revive a releasing handle. Retries
+acquire a fresh handle only after the previous resource is closed. Connection
+queries use snapshot identity so a concurrent disconnect cannot resurrect a session.
+Connection attempts (including peer-initiated connecting callbacks) also have a
+ten-second deadline. Repeated connecting callbacks and activity resumes do not
+extend it. A timeout or explicit cancellation atomically retires the still-current
+attempt's registration, then uses the same confirmed-release path before acquiring
+a fresh profile. Android callbacks lack connection-attempt IDs, so resetting only
+the connecting flag would let late success revive an abandoned attempt. A success
+that wins the atomic transition is preserved. The connecting dialog supports Cancel
+and Back; timeout shows a connection error with Retry after cleanup completes. Notifications
+use `CLEAR_TOP | SINGLE_TOP` to reuse the activity and its navigation/draft state.
+The Host tests cover these transitions, overlapping activity clients, registration
+rejection, missing callbacks, cleanup ownership, late arrivals, synchronous session
+revocation, key-release cleanup, and callback/query ordering. `HidNotificationTest` checks the real notification
+PendingIntent contract; it does not simulate Android task-stack execution.
+An Android 15 physical-device smoke check also verified three actual notification
+returns to the same Activity with the message page/draft preserved, followed by
+the HID device-selection state after successful registration. This check used an
+isolated Debug installation and did not send keys to a target computer.
+
 Robolectric Compose tests run locally with Android resources and verify immediate
 draft edits across task updates/reconnection, plus visible progress and cancellation
 controls after disconnecting. They run as part of `:app:testDebugUnitTest` and do not
@@ -97,6 +140,10 @@ version in [README.md](README.md) and a target computer. The validation checklis
 - In macOS Keyboard Setup Assistant, verify ANSI and ISO recognition with each text
   layout selected and with a Bluetooth name that does not contain `Mac`.
 - Disconnect during a send and verify a new send works after reconnecting.
+- Return through the notification repeatedly and verify one MainActivity instance,
+  the same page/draft, and working HID input; also check desktop-icon/recent-task
+  returns, Bluetooth off/on, and permission revoke/grant. Real Bluetooth input
+  requires a paired computer and is not established by JVM or notification tests.
 
 ## HTTP downloads and port changes
 

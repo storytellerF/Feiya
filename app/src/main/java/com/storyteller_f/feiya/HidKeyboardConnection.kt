@@ -18,10 +18,11 @@ class HidKeyboardSession(
     override val deviceName: String,
     private val transportDispatcher: CoroutineDispatcher,
     private val keyboard: RawHidKeyboard,
+    private val validity: () -> Boolean = { true },
     private val report: (ByteArray) -> Boolean,
 ) : HidKeyboardConnection {
     private val connected = MutableStateFlow(true)
-    override val isConnected: Boolean get() = connected.value
+    override val isConnected: Boolean get() = connected.value && validity()
 
     fun disconnect() {
         connected.value = false

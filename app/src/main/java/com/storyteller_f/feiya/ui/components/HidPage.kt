@@ -46,12 +46,12 @@ import com.storyteller_f.feiya.HidKeyboardState
 import com.storyteller_f.feiya.TargetKeyboardLayout
 import com.storyteller_f.feiya.KeyboardCalibration
 import com.storyteller_f.feiya.HidState
+import com.storyteller_f.feiya.HidDevice
+import com.storyteller_f.feiya.HidFailure
 import com.storyteller_f.feiya.R
 
-class ComposeBluetoothDevice(val name: String, val address: String)
-
 @Composable
-fun BoundDevice(device: ComposeBluetoothDevice, connectDevice: (String) -> Boolean) {
+fun BoundDevice(device: HidDevice, connectDevice: (String) -> Unit) {
     Column(
         modifier = Modifier
             .padding(8.dp)
@@ -85,7 +85,7 @@ class HidPreviewProvider : PreviewParameterProvider<HidState> {
     override val values: Sequence<HidState>
         get() = sequenceOf(
             HidState.BluetoothOff, HidState.NoPermission, HidState.NoBond(listOf()), HidState.Done(
-                ComposeBluetoothDevice("name", "address")
+                HidDevice("name", "address")
             )
         )
 
@@ -96,7 +96,9 @@ class HidPreviewProvider : PreviewParameterProvider<HidState> {
 fun HidScreen(
     @PreviewParameter(HidPreviewProvider::class) bluetoothState: HidState,
     requestPermission: () -> Unit = {},
-    connectDevice: (String) -> Boolean = { false },
+    connectDevice: (String) -> Unit = {},
+    retryConnection: () -> Unit = {},
+    cancelConnection: () -> Unit = {},
     sendText: (String) -> Unit = {},
     keyboardState: HidKeyboardState = HidKeyboardState(),
     cancelTask: (Long) -> Unit = {},
@@ -122,12 +124,20 @@ fun HidScreen(
                 HidState.NotSupport -> NotSupportPage()
                 HidState.BluetoothOff -> BluetoothOffPage()
                 HidState.NoPermission -> NoPermissionPage(requestPermission)
+                HidState.Preparing -> OneCenter { Text(stringResource(R.string.hid_preparing)) }
+                is HidState.Failed -> OneCenter {
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        HidFailureText(bluetoothState.reason)
+                        Button(onClick = retryConnection) { Text(stringResource(R.string.hid_retry)) }
+                    }
+                }
 
                 is HidState.NoBond -> EmptyBoundPage(
                     rootModifier,
                     bluetoothState,
                     toBluetoothSettings,
-                    connectDevice
+                    connectDevice,
+                    cancelConnection,
                 )
 
                 is HidState.Done -> ConnectedPage(
@@ -204,6 +214,7 @@ private fun ConnectedPage(
             text = stringResource(R.string.connected_device_tip, bluetoothState.device.name),
             style = MaterialTheme.typography.titleMedium,
         )
+        bluetoothState.failure?.let { HidFailureText(it) }
         Button(onClick = disconnect) {
             Text(text = stringResource(R.string.hid_disconnect))
         }
@@ -259,11 +270,24 @@ private fun ConnectedPage(
 }
 
 @Composable
+private fun HidFailureText(failure: HidFailure) {
+    val message = when (failure) {
+        HidFailure.CLEANUP -> R.string.hidCleanupFailed
+        HidFailure.PROFILE -> R.string.hid_profile_failed
+        HidFailure.REGISTRATION -> R.string.hid_registration_failed
+        HidFailure.CONNECTION -> R.string.hid_connect_failed
+        HidFailure.DISCONNECTION -> R.string.hid_disconnect_failed
+    }
+    Text(stringResource(message), color = MaterialTheme.colorScheme.error)
+}
+
+@Composable
 private fun EmptyBoundPage(
     modifier: Modifier,
     bluetoothState: HidState.NoBond,
     toBluetoothSettings: () -> Unit,
-    connectDevice: (String) -> Boolean
+    connectDevice: (String) -> Unit,
+    cancelConnection: () -> Unit,
 ) {
     val bondDevices = bluetoothState.bondDevices
     if (bondDevices.isEmpty()) {
@@ -282,6 +306,7 @@ private fun EmptyBoundPage(
         }
     } else {
         Column(modifier = modifier.padding(8.dp)) {
+            bluetoothState.failure?.let { HidFailureText(it) }
             Text(
                 text = stringResource(R.string.bond_devices_tip),
                 fontSize = 20.sp
@@ -297,7 +322,9 @@ private fun EmptyBoundPage(
         }
     }
     if (bluetoothState.connecting != null)
-        AlertDialog(onDismissRequest = { }, confirmButton = { }, text = {
+        AlertDialog(onDismissRequest = cancelConnection, confirmButton = {
+            Button(onClick = cancelConnection) { Text(stringResource(R.string.cancel_action)) }
+        }, text = {
             Text(text = "connecting to ${bluetoothState.connecting}")
         })
 }

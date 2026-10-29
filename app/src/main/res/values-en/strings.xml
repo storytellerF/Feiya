@@ -1,6 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Feiya</string>
+    <string name="hid_preparing">Preparing Bluetooth keyboard…</string>
+    <string name="hid_retry">Retry</string>
+    <string name="hid_profile_failed">Could not start the Bluetooth keyboard service. Try again.</string>
+    <string name="hid_registration_failed">Could not register the Bluetooth keyboard. Close other Bluetooth keyboard apps and try again.</string>
+    <string name="hid_connect_failed">Could not connect. Check that Bluetooth is enabled on your computer, then select the device again.</string>
+    <string name="hid_disconnect_failed">Could not disconnect. Try again.</string>
     <string name="project_url" translatable="false">https://github.com/storytellerF/Feiya</string>
     <string name="hid_app_name" translatable="false">Feiya HID</string>
     <string name="view">View</string>
@@ -93,4 +99,5 @@
     <string name="access_password_hint">Required to open shared content in a browser. Leave empty for access without a password.</string>
     <string name="listen_port_hint">Server listening port: %1$s</string>
     <string name="files_title">Files</string>
+    <string name="hidCleanupFailed">Bluetooth has not confirmed release of the previous session. Turn Bluetooth off and on, then retry.</string>
 </resources>
