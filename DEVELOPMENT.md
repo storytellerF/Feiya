@@ -1,4 +1,3 @@
-<a id="development"></a>
 # 开发
 
 使用 JDK 21 或更新版本，以及包含 platform 37 的 Android SDK。将 `ANDROID_HOME` 设为 SDK 目录，或在本地 `local.properties` 配置 `sdk.dir`。同时安装 Node.js 24，并确保 npm 在 `PATH` 中；Android 构建会自动编译共享浏览器 UI。
@@ -13,19 +12,16 @@
 
 系统栏使用 AndroidX `enableEdgeToEdge`，图标外观随 `AppTheme`，按钮导航使用平台对比度保护。剪贴板写入在 composition 管理的协程作用域中使用 `LocalClipboard.setClipEntry`。JVM Compose 测试覆盖消息／二维码链接复制内容和系统栏图标变化；发布前还应在设备上目视检查二维码链接复制和手势／按钮导航。
 
-<a id="dependency-alignment"></a>
 ## 依赖对齐
 
 外部库和插件的坐标、版本在 `gradle/libs.versions.toml` 声明，构建脚本引用其 `libs` 别名。本地项目依赖仍使用项目引用。
 
 AGP 将应用和 Android 测试共享的依赖对齐到应用运行时版本。应用为 `androidx.concurrent:concurrent-futures:1.2.0` 声明 `implementation` 依赖约束，匹配 AndroidX Test JUnit 1.3.0 的要求。这会提升 ProfileInstaller 较旧的传递依赖要求，不强制精确版本，也不删除 ProfileInstaller。约束版本保留在 `gradle/libs.versions.toml`；升级 AndroidX Test，或应用其他依赖已要求兼容版本时，重新评估。
 
-<a id="apk-resource-packaging"></a>
 ## APK 资源打包
 
 Netty 原生 QUIC 平台 JAR 在 `META-INF/license/` 包含相同第三方许可证，在 `META-INF/native-image/io.netty/netty-codec-native-quic/` 包含相同 GraalVM 配置。应用使用限定范围的 `packaging.resources.pickFirsts`，在 APK 中各保留一份。保留许可证声明，不要为解决合并冲突而排除全部 `META-INF` 资源。升级 Netty 时重新核对重复内容。
 
-<a id="hid-keyboard"></a>
 ## HID 键盘
 
 `HidKeyboardHost` 管理目标布局、校准选择和顺序发送队列，提供可观察的任务状态、按键进度、失败原因和取消。HID 页面持有可保存的 `TextFieldValue` 草稿，并在 `onValueChange` 同步更新；提交时将不可变文本快照交给 Host。后台任务更新绝不替换草稿、光标或 IME 组合输入。Activity 创建和关闭 Host，通过感知生命周期的 Compose 收集观察状态，并在 started 期间消费完成／错误副作用。应用注入后台串行协程调度器；Host 测试注入测试调度器。
@@ -48,7 +44,6 @@ Robolectric Compose 测试在本地使用 Android 资源，验证任务更新和
 - 发送中断开，验证重连后可再次发送。
 - 反复从通知返回，验证只有一个 MainActivity、页面／草稿不变且 HID 输入可用；也检查桌面图标／最近任务返回、蓝牙开关和权限撤销／授予。真实蓝牙输入需要已配对电脑，JVM 或通知测试不能证明它有效。
 
-<a id="http-downloads-and-port-changes"></a>
 ## HTTP 下载与端口更改
 
 `respondUri` 在 IO 调度器读取可选提供方元数据。未知或负大小保持未知，不能转换为 `Content-Length: 0`。每次正文或 range 响应打开新输入流，在完成或取消时关闭。HEAD 仅返回元数据，不打开流。提供方不必提供 DocumentsContract MIME／last-modified 列或可 seek 描述符。
@@ -63,7 +58,6 @@ Robolectric Compose 测试在本地使用 Android 资源，验证任务更新和
 
 本地测试覆盖提供方元数据、完整／range／HEAD 响应、取消清理、切换端口失败、切回、旧端口释放和真实回环 HTTP 监听器关闭。这些是 JVM／服务器集成测试，不是 Android 设备或 Windows 浏览器端到端测试。声称平台覆盖前，须在 Windows 浏览器中使用最初复现 issue #6 的提供方和文件重新检查下载。
 
-<a id="boot-startup"></a>
 ## 开机启动
 
 `BootSettingsHost` 在应用管理的串行设置调度器上管理加载、保存和错误状态。Activity 关闭 Host，通过感知生命周期的收集观察状态。`DataStoreBootSettings` 将 `start_on_boot` 存入现有设置 DataStore，缺失键表示禁用。写入失败保留最近已保存的 UI 值。
@@ -72,14 +66,12 @@ Robolectric Compose 测试在本地使用 Android 资源，验证任务更新和
 
 本地测试覆盖偏好持久化、Host 错误／取消、开关渲染、启动条件、超时和拒绝启动的清理、manifest receiver 投递，以及没有通知权限时的前台提升。实际重启与厂商自启动限制需要设备测试，在此环境仍未验证。
 
-<a id="ci-gradle-caching"></a>
 ## CI Gradle 缓存
 
 PR 测试和 main 发布构建使用同一固定版本的 `gradle/actions/setup-gradle`，设置 `cache-provider: enhanced`。保持两个工作流一致，不再并用 `setup-java` Gradle 缓存或其他 Gradle User Home 缓存。构建继续使用 `./gradlew`，由 Wrapper 定义 Gradle 版本。
 
 action 默认仅在默认分支写缓存；PR 只恢复兼容的默认分支条目，不写自身缓存。评估缓存变化时，检查 setup-gradle 日志与作业摘要中的恢复条目，并比较冷／热耗时、传输量和仓库缓存存储。构建成功本身不能证明缓存已复用或性能提升。
 
-<a id="minified-builds"></a>
 ## 压缩构建
 
 PR CI 除测试外，还在没有签名机密的情况下组装 Alpha 与 Release，再为一次性 APK 副本签名，在 Android 16 / API 36 x86_64 模拟器验证 HTTP 启动和 WebSocket echo。绝不使用生产签名密钥。Debug 不运行 R8，无法发现这些变体的缺失类失败。本地未提供 release 签名环境变量时生成未签名 APK。
@@ -90,12 +82,10 @@ Netty 的 `ReflectiveChannelFactory` 调用 Channel 的公开无参构造函数�
 
 运行时检查入口为 `scripts/smoke-minified.sh SERIAL SIGNED_APK PACKAGE OUTPUT_DIR`。使用一次性模拟器：脚本拒绝覆盖已安装应用，也拒绝在端口 8080 已有 HTTP 监听器时测试。Shell 入口直接转发参数给 `scripts/smoke-minified.py`；CI 在专用模拟器直接调用 Python 脚本。两条路径都只移除自己创建的安装和端口转发。结果和启动日志输出到指定目录，CI 即使冒烟失败也上传。使用 `scripts/sign-smoke-apks.sh OUTPUT_DIR ALPHA_UNSIGNED_APK RELEASE_UNSIGNED_APK` 为此检查创建一次性签名副本。该检查覆盖启动、HTTP 和 WebSocket 流量，不覆盖蓝牙 HID 或所有生产设备配置。
 
-<a id="shared-uri-integrity-and-device-test-fixtures"></a>
 ## 共享 URI 完整性与设备测试夹具
 
 共享 URI 更新在 IO worker 上串行执行，忽略重复添加，并在加载时修复旧重复项。合并文件列表也按 URI 去重，URI 同时是 Compose 列表键。仪器测试创建唯一临时文件夹具，等待异步添加，并在 `@After` 只移除自己的条目和文件；不能追加永久 `file:///test.zip` 条目。SSE 断言须有超时并传播失败，不能吞掉错误。
 
-<a id="shared-browser-ui"></a>
 ## 共享浏览器 UI
 
 `web/` 是独立 npm 项目。HTML 位于 `web/src/pages`，应用、Worker、Host、Markdown 适配器和样式表位于 `web/src`。运行时库（`markdown-it` 和 `@phosphor-icons/core`）在 `web/package.json` 声明，由 `web/package-lock.json` 锁定。构建与测试工具属于 devDependencies。Dependabot 每周检查 `/web`，包括通过 lockfile 更新传递依赖。
@@ -113,7 +103,6 @@ npm --prefix web run preview
 
 `build` 用 esbuild 打包 JavaScript／CSS，复制 HTML 和仅被引用的图标资源，并从实际打包的包生成第三方许可证声明。输出为 `web/dist/feiya/*.html` 和 `web/dist/web/*`。`dist` 与 `node_modules` 都不提交。依赖变化不需要 vendoring；通过 npm 更新，并提交 `package.json` 和 `package-lock.json`。
 
-<a id="android-packaging"></a>
 ### Android 打包
 
 每个 Android 变体通过 AGP variant API 注册生成的 Java 资源。Gradle 先运行 `:app:installWebDependencies`（`npm ci --include=dev`），再运行 `:app:buildWeb`，然后将发行内容复制到变体专属生成资源目录。HTML、JS、CSS、图标和声明通过 classpath 进入 APK；源码、测试夹具、node_modules 和 source map 不进入。npm 安装和打包声明输入／输出，未变化时跳过两项任务。删除 node_modules 或改变 lockfile 会触发重新安装。构建失败必须使 Android 构建失败，不能打包旧发行内容。
@@ -128,7 +117,6 @@ python3 scripts/check-web-apk.py web/dist app/build/outputs/apk/*/*.apk
 
 Ktor 在认证前提供 `/login` 和 `/web/*`，会话验证后提供 `/` 和 `/messages`。`feiya/` 输出命名空间避免与依赖资源（如 `index.html`）冲突。`/shares`、`/shares/{index}`、`/sse` 和 `/chat` 保留协议。文件下载仍使用服务器列表索引。
 
-<a id="state-markdown-and-verification"></a>
 ### 状态、Markdown 与验证
 
 `web/src/host.js` 管理异步状态与副作用，不依赖 DOM。`web/src/worker.js` 在每页一个 Worker 中注入网络、计时器和 Markdown 渲染器。`web/src/app.js` 渲染快照并管理同步草稿。退出页面终止 Worker；从前进／后退缓存恢复时启动新 Host。断开后不重放消息。剪贴板可用时使用安全 API，局域网 HTTP 则使用用户手势回退方式。
@@ -137,7 +125,6 @@ Worker 对每条消息只解析一次，忽略发送方提供的任何 HTML。�
 
 预览在 `127.0.0.1:4173` 使用模拟 HTTP／SSE／WebSocket 数据，提供与 APK 相同的发行内容，不是 Android 端到端测试。浏览器测试截图保存在已忽略的 `web/test/artifacts/`。`WebPagesTest` 另行通过 JVM 服务器检查真实 Ktor 路由、会话登录及生成的 JS／CSS／图标／声明资源。Web 构建保留本地资源，无需 CDN。
 
-<a id="adaptive-android-ui"></a>
 ## 自适应 Android UI
 
 `AppShell` 根据可用窗口宽度调整：小于 600 dp 使用底部导航，600 dp 起使用紧凑侧边 rail，1000 dp 起使用带标签侧栏（宽 224 dp，窗口至少 1200 dp 时增至 280 dp）。大字体使用带无障碍标签的图标导航，避免底部或 rail 标签裁切。导航占用空间后，`SharedFiles` 自身内容区达到 720 dp 时切换为列表／详情布局。选择按 URI 保存，可跨重排和状态恢复，文件消失时清空。紧凑详情在离开页面前优先处理系统返回。
@@ -152,7 +139,6 @@ edge-to-edge Activity 显式使用 `adjustResize`，由 Compose IME inset 处理
 
 运行 `./gradlew :app:testDebugUnitTest --tests '*AdaptiveFilesTest'` 检查自适应选择、状态保存与渲染。渲染截图输出到 `app/build/outputs/design/`，使用 Robolectric 原生图形，不是设备截图。
 
-<a id="brand-icons"></a>
 ## 品牌图标
 
 Feiya 标记将 F 与两片后掠翼结合，使用梅紫、米白和青柠色。`res/drawable/ic_launcher_foreground.xml` 是彩色矢量源，形状保持在 adaptive 安全圆内。`ic_launcher_monochrome.xml` 提供主题图标；`ic_notification.xml` 为 24 dp 透明背景上的不透明白色轮廓。两个前台服务通知构建器都必须使用该通知 drawable。启动页共享 adaptive 前景和背景色。
