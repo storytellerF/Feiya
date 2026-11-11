@@ -103,6 +103,8 @@ npm --prefix web run preview
 
 `build` 用 esbuild 打包 JavaScript／CSS，复制 HTML 和仅被引用的图标资源，并从实际打包的包生成第三方许可证声明。输出为 `web/dist/feiya/*.html` 和 `web/dist/web/*`。`dist` 与 `node_modules` 都不提交。依赖变化不需要 vendoring；通过 npm 更新，并提交 `package.json` 和 `package-lock.json`。
 
+Web 配色通过 `prefers-color-scheme` 默认跟随浏览器系统偏好，首开和运行期切换无需重启。`test:browser` 同时检查文件、消息和登录页的浅深色、双向切换、重新加载及渲染文字对比度；截图保存在 `web/test/artifacts/theme-*.png`。该检查使用 Chromium 媒体模拟，不代表真实 OS 或 Android WebView 验证。当前 Web 没有上传页；文件由手机端添加。
+
 ### Android 打包
 
 每个 Android 变体通过 AGP variant API 注册生成的 Java 资源。Gradle 先运行 `:app:installWebDependencies`（`npm ci --include=dev`），再运行 `:app:buildWeb`，然后将发行内容复制到变体专属生成资源目录。HTML、JS、CSS、图标和声明通过 classpath 进入 APK；源码、测试夹具、node_modules 和 source map 不进入。npm 安装和打包声明输入／输出，未变化时跳过两项任务。删除 node_modules 或改变 lockfile 会触发重新安装。构建失败必须使 Android 构建失败，不能打包旧发行内容。
