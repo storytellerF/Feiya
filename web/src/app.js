@@ -12,8 +12,12 @@ let renderedMessages = 0;
 let sending = false;
 let connected = false;
 const action = (data) => worker?.postMessage(data);
-const feedback = (text) => {
-  if ($("feedback")) $("feedback").textContent = text;
+const feedback = (text, isError = false) => {
+  const node = $("feedback");
+  if (node) {
+    node.textContent = text;
+    node.classList.toggle("error", isError);
+  }
 };
 function fileKind(name) {
   const extension = name.includes(".")
@@ -47,6 +51,7 @@ function renderFiles(state) {
     : state.error
       ? "暂时无法加载"
       : "还没有共享文件";
+  notice.querySelector("p").classList.toggle("error", !!state.error);
   notice.querySelector("p").textContent = state.loading
     ? "请稍候…"
     : state.error || "在手机上选择文件后，它们会自动出现在这里。";
@@ -100,14 +105,14 @@ async function copy(text) {
     }
     feedback("已复制消息");
   } catch {
-    feedback("复制失败，请选中消息文字后手动复制。");
+    feedback("复制失败，请选中消息文字后手动复制。", true);
   }
 }
 function renderChat(state) {
   connected = state.connection === "connected";
   $("reconnect").hidden = state.connection !== "disconnected";
   $("send-button").disabled = !connected || sending || !$("input").value.trim();
-  feedback(state.error);
+  feedback(state.error, !!state.error);
   const list = $("message-list");
   if (!renderedMessages) $("chat-empty").hidden = !!state.messages.length;
   const nearEnd = list.scrollHeight - list.scrollTop - list.clientHeight < 80;
@@ -162,7 +167,7 @@ function start() {
       renderChat(state);
     }
     if (page === "login") {
-      feedback(state.busy ? "正在连接…" : state.error);
+      feedback(state.busy ? "正在连接…" : state.error, !state.busy && !!state.error);
       $("login-form")
         .querySelectorAll("button")
         .forEach((button) => {
@@ -172,7 +177,7 @@ function start() {
   };
   worker.onerror = () => {
     $("connection-label").textContent = "页面加载失败，请刷新";
-    feedback("页面组件加载失败，请刷新后重试。");
+    feedback("页面组件加载失败，请刷新后重试。", true);
   };
   action({ type: "start", page });
 }

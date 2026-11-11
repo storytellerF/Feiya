@@ -5,7 +5,7 @@
   "scripts": {
     "build": "node scripts/build.mjs",
     "test": "node --test test/host.test.mjs test/markdown.test.mjs test/build.test.mjs",
-    "test:browser": "npm run build && node test/browser.test.mjs",
+    "test:browser": "npm run build && node test/browser.test.mjs && node test/theme.test.mjs",
     "preview": "npm run build && node test/preview.mjs",
     "pretest": "npm run build"
   },

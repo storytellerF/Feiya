@@ -1,5 +1,5 @@
 :root {
-  color-scheme: light;
+  color-scheme: light dark;
   --bg: #fcfdf6;
   --rail: #e8eedd;
   --ink: #1a1c19;
@@ -7,10 +7,38 @@
   --green: #206c29;
   --line: #d4ddd0;
   --error: #ba1a1a;
+  --on-green: #ffffff;
+  --green-hover: #195821;
+  --nav-hover: #d5e8cf;
+  --row-hover: #f2f5ea;
+  --surface: #ffffff;
+  --input-line: #a6b29e;
+  --focus: #38656b;
+  --file: #52634f;
   font-family: Arial, "Noto Sans CJK SC", "Microsoft YaHei", sans-serif;
   color: var(--ink);
   background: var(--bg);
   font-synthesis: none;
+}
+/* The browser owns theme changes, including pages restored from history. */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #141914;
+    --rail: #202b20;
+    --ink: #e5eade;
+    --muted: #b6c8b0;
+    --green: #91dc91;
+    --line: #455443;
+    --error: #ffb4ab;
+    --on-green: #103813;
+    --green-hover: #a5eea5;
+    --nav-hover: #324732;
+    --row-hover: #253225;
+    --surface: #1d241d;
+    --input-line: #7c9076;
+    --focus: #9bd0d7;
+    --file: #b6c8b0;
+  }
 }
 * {
   box-sizing: border-box;
@@ -55,7 +83,7 @@ button:focus-visible,
 a:focus-visible,
 input:focus-visible,
 textarea:focus-visible {
-  outline: 3px solid #38656b;
+  outline: 3px solid var(--focus);
   outline-offset: 4px;
 }
 [hidden] {
@@ -124,14 +152,14 @@ textarea:focus-visible {
 }
 .nav a[aria-current="page"] {
   background: var(--green);
-  color: white;
+  color: var(--on-green);
 }
 .nav a:hover {
   text-decoration: none;
-  background: #d5e8cf;
+  background: var(--nav-hover);
 }
 .nav a[aria-current="page"]:hover {
-  background: #195821;
+  background: var(--green-hover);
 }
 .connection {
   margin: auto 16px 10px;
@@ -190,7 +218,7 @@ textarea:focus-visible {
 }
 .count {
   color: var(--muted);
-  border-left: 1px solid #adb9aa;
+  border-left: 1px solid var(--line);
   padding-left: 20px;
   font-size: 22px;
 }
@@ -237,13 +265,13 @@ textarea:focus-visible {
   overflow-wrap: anywhere;
 }
 .file-type {
-  color: #63746e;
+  color: var(--file);
 }
 .file-glyph {
   width: 56px;
   height: 56px;
   --icon: url("/web/icons/file.svg");
-  color: #63746e;
+  color: var(--file);
 }
 .file-glyph[data-type="pdf"] {
   --icon: url("/web/icons/file-pdf.svg");
@@ -269,7 +297,7 @@ textarea:focus-visible {
   font-weight: 500;
 }
 .file-table tr:hover td {
-  background: #f2f5ea;
+  background: var(--row-hover);
 }
 .notice {
   color: var(--muted);
@@ -283,7 +311,9 @@ textarea:focus-visible {
 .notice p {
   margin: 0 0 16px;
 }
-.error {
+.error,
+.status-message.error,
+.login-form p.error {
   color: var(--error);
 }
 .button {
@@ -299,15 +329,15 @@ textarea:focus-visible {
   color: var(--green);
 }
 .button:hover {
-  background: #e8eedd;
+  background: var(--rail);
 }
 .primary {
   background: var(--green);
-  color: white;
+  color: var(--on-green);
   border-color: var(--green);
 }
 .primary:hover {
-  background: #195821;
+  background: var(--green-hover);
 }
 .status-message {
   min-height: 26px;
@@ -319,7 +349,7 @@ textarea:focus-visible {
   left: 16px;
   top: -80px;
   z-index: 10;
-  background: white;
+  background: var(--surface);
   padding: 10px;
 }
 .skip-link:focus {
@@ -354,11 +384,16 @@ label {
 input,
 textarea {
   width: 100%;
-  border: 1px solid #a6b29e;
+  border: 1px solid var(--input-line);
   border-radius: 8px;
-  background: #fff;
+  background: var(--surface);
   color: var(--ink);
   padding: 12px;
+}
+input::placeholder,
+textarea::placeholder {
+  color: var(--muted);
+  opacity: 1;
 }
 input {
   height: 48px;
@@ -584,12 +619,6 @@ input {
   }
   .message {
     padding: 12px 0;
-  }
-}
-@media (prefers-reduced-motion: no-preference) {
-  a,
-  button {
-    transition: background-color 0.15s ease;
   }
 }
 
