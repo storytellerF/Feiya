@@ -4,10 +4,13 @@ permissions:
   contents: write
 
 on:
+  release:
+    types: [published]
   push:
-    tags:
-      - '*'
     branches: [ "main" ]
+
+env:
+  RELEASE_TAG: ${{ github.event.release.tag_name }}
 
 jobs:
   build:
@@ -39,7 +42,7 @@ jobs:
           echo "${{ secrets.SIGNING_KEY }}" | base64 -d > app/build/signing/signing_key.jks
 
       - name: Build APK
-        run: ./gradlew ${{ startsWith(github.ref, 'refs/tags/') && 'assembleRelease' || 'assembleAlpha' }}
+        run: ./gradlew ${{ (github.event_name == 'release') && 'assembleRelease' || 'assembleAlpha' }}
         env:
           storyteller_f_sign_path: app/build/signing/signing_key.jks
           storyteller_f_sign_alias: ${{ secrets.ALIAS }}
@@ -50,14 +53,14 @@ jobs:
         run: python3 scripts/check-web-apk.py web/dist app/build/outputs/apk/*/*.apk
 
       - name: Upload artifact
-        if: "!startsWith(github.ref, 'refs/tags/')"
+        if: "!(github.event_name == 'release')"
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: Alpha APK
           path: app/build/outputs/apk/alpha/*.apk
 
       - name: Upload release APK
-        if: startsWith(github.ref, 'refs/tags/')
+        if: (github.event_name == 'release')
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: feiya-release
@@ -67,7 +70,7 @@ jobs:
   release:
     name: Upload release assets
     needs: build
-    if: startsWith(github.ref, 'refs/tags/')
+    if: (github.event_name == 'release')
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -81,13 +84,6 @@ jobs:
           name: feiya-release
           path: release-assets
 
-      - name: Create release when missing
-        shell: bash
-        run: |
-          if ! gh release view "$GITHUB_REF_NAME" >/dev/null 2>&1; then
-            gh release create "$GITHUB_REF_NAME" --verify-tag --generate-notes --title "$GITHUB_REF_NAME"
-          fi
-
       - name: Upload release assets
         shell: bash
         run: |
@@ -96,4 +92,4 @@ jobs:
             echo "No release assets found" >&2
             exit 1
           fi
-          gh release upload "$GITHUB_REF_NAME" "${assets[@]}" --clobber
+          gh release upload "$RELEASE_TAG" "${assets[@]}" --clobber
